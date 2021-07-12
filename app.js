@@ -115,7 +115,7 @@ csp.extend(app, {
     },
   },
 });
-
+//for debugging
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev')); //for logggin in terminal
 app.use('/api', rateLimiter); //for security
 
