@@ -8,6 +8,7 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const csp = require('express-csp');
+const compression = require('compression');
 
 const app = express();
 const tourRouter = require('./routes/tourRouter');
@@ -28,10 +29,10 @@ app.use(express.json({ limit: '10kb' })); //to get data from body into req.body
 app.use(cookieParser()); //for getting cookie from the browser
 
 //test middleware
-app.use((req, res, next) => {
-  // console.log(req.cookies);
-  next();
-});
+// app.use((req, res, next) => {
+//   // console.log(req.cookies);
+//   next();
+// });
 
 app.use(mongoSanitize()); //security for attack agaisnt NOSQL injections
 app.use(xss()); //security agaisnt html/js code
@@ -49,6 +50,7 @@ app.use(
     ],
   })
 );
+app.use(compression());
 app.use(helmet()); //for security for http headers
 csp.extend(app, {
   policy: {
