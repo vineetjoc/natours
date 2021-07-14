@@ -12,13 +12,14 @@ const signToken = (id) => {
     expiresIn: process.env.EXPIRES_IN,
   });
 };
-const createSendToken = (user, statusCode, res) => {
+const createSendToken = (user, statusCode, req, res) => {
   const token = signToken(user._id);
   res.cookie('jwt', token, {
     expires: new Date(
       Date.now() + process.env.COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
+    secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
   });
   user.password = undefined;
   res.status(statusCode).json({
@@ -42,7 +43,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   const url = `${req.protocol}//:${req.get('host')}/me`;
   await new Email(newUser, url).sendWelcome();
 
-  createSendToken(newUser, 201, res);
+  createSendToken(newUser, 201, req, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -61,7 +62,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   //sendind token as response
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 exports.protect = catchAsync(async (req, res, next) => {
   let token;
@@ -206,7 +207,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   //setting the passwordchangedAt property,when done user.save we are running a middleware for passwordchangedAt
 
   //sending response
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 exports.updatePassword = catchAsync(async (req, res, next) => {
   //get the user from dB
@@ -228,7 +229,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   user.confirmPassword = confirmPassword;
   await user.save();
 
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 exports.logout = async (req, res) => {
   res.cookie('jwt', 'Logged Out', {

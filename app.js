@@ -9,8 +9,10 @@ const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const csp = require('express-csp');
 const compression = require('compression');
+const cors = require('cors');
 
 const app = express();
+app.enable('trust proxy');
 const tourRouter = require('./routes/tourRouter');
 const userRouter = require('./routes/userRouter');
 const reviewRouter = require('./routes/reviewRouter');
@@ -27,7 +29,8 @@ const rateLimiter = rateLimit({
 //global miidelwares
 app.use(express.json({ limit: '10kb' })); //to get data from body into req.body
 app.use(cookieParser()); //for getting cookie from the browser
-
+app.use(cors());
+app.options('*', cors());
 //test middleware
 // app.use((req, res, next) => {
 //   // console.log(req.cookies);
@@ -107,7 +110,7 @@ csp.extend(app, {
         'unsafe-inline',
         'data:',
         'blob:',
-        'wss://<HEROKU-SUBDOMAIN>.herokuapp.com:<PORT>/',
+        'wss://<natours-wineet>.herokuapp.com:<PORT>/',
         'https://*.stripe.com',
         'https://*.mapbox.com',
         'https://*.cloudflare.com/',
