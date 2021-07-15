@@ -13,6 +13,7 @@ const cors = require('cors');
 
 const app = express();
 app.enable('trust proxy');
+const bookingController = require('./controllers/bookingController');
 const tourRouter = require('./routes/tourRouter');
 const userRouter = require('./routes/userRouter');
 const reviewRouter = require('./routes/reviewRouter');
@@ -27,6 +28,11 @@ const rateLimiter = rateLimit({
   message: 'Too may request from this IP. Try later!!!',
 });
 //global miidelwares
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  bookingController.webhookCheckout
+);
 app.use(express.json({ limit: '10kb' })); //to get data from body into req.body
 app.use(cookieParser()); //for getting cookie from the browser
 app.use(cors());
